@@ -1,0 +1,50 @@
+{
+  "$schema": "./contracts/app-definition-v1.schema.json",
+  "schemaVersion": 1,
+  "id": "agent-lz-default",
+  "displayName": "Agent Landing Zone default application (UI, orchestrator, ingestion)",
+  "components": [
+    {
+      "name": "ui",
+      "kind": "containerapp",
+      "path": "ui",
+      "source": { "commit": "605323634381d190f3e872eb137443d0bc28f3ca" },
+      "profiles": ["blob-delegator", "retrieval-reader"],
+      "egress": [],
+      "ingress": "external"
+    },
+    {
+      "name": "orchestrator",
+      "kind": "containerapp",
+      "path": "orchestrator",
+      "source": { "commit": "2c0579ef29a15bc862b150c1a6a8387f74de398e" },
+      "profiles": ["model-user", "retrieval-reader", "conversation-store"],
+      "egress": [
+        {
+          "fqdn": "openaipublic.blob.core.windows.net",
+          "protocol": "https",
+          "port": 443,
+          "purpose": "Download tiktoken encoding assets when the runtime cache is empty."
+        }
+      ],
+      "ingress": "external"
+    },
+    {
+      "name": "ingestion",
+      "kind": "containerapp",
+      "path": "ingestion",
+      "source": { "commit": "d7f34eb040cc308ce18d0d95ee9c9cb0f07028b1" },
+      "profiles": ["model-user", "conversation-store", "ingestion-writer"],
+      "egress": [
+        {
+          "fqdn": "openaipublic.blob.core.windows.net",
+          "protocol": "https",
+          "port": 443,
+          "purpose": "Download tiktoken encoding assets for chunking and token estimation when the runtime cache is empty."
+        }
+      ],
+      "ingress": "external",
+      "resources": { "cpu": 1.0, "memory": "3.0Gi" }
+    }
+  ]
+}
